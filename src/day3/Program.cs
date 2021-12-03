@@ -9,9 +9,8 @@ namespace Aoc
         {
             return File.ReadAllLines($"input/{name}.txt").ToArray();
         }
-        public static long part1(string[] input)
+        public static List<int> GetOnes(string[] input)
         {
-
             var ones = new List<int>(new int[input[0].Length]);
             foreach (var row in input)
             {
@@ -23,6 +22,31 @@ namespace Aoc
 
                 }
             }
+            return ones;
+        }
+        public static long ZeroOrOne(string[] input)
+        {
+            var ones = GetOnes(input);
+
+            var zero_or_one = new List<int>();
+            foreach (var x in ones)
+            {
+                if (x > input.Length / 2)
+                {
+                    zero_or_one.Add(1);
+
+                }
+                else
+                {
+                    zero_or_one.Add(0);
+                }
+            }
+            return zero_or_one;
+        }
+        public static long part1(string[] input)
+        {
+
+            var ZeroOrOne(input);
             var gamma = "";
             foreach (var x in ones)
             {
@@ -58,10 +82,20 @@ namespace Aoc
             return a * b;
         }
 
-        // public static int part2 (string[] input)
-        // {
-            //return ..
-        // }
+        public static long part2(string[] input)
+        {
+            var ones = GetOnes(input);
+            var i = 0;
+            foreach (var count in ones)
+            {
+
+                foreach (var number in input)
+                {
+
+                }
+            }
+            return 2L;
+        }
         static void Main(string[] args)
         {
 
