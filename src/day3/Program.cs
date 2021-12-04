@@ -17,33 +17,39 @@ namespace Aoc
         {
             return File.ReadAllLines($"input/{name}.txt").ToList();
         }
-        public static List<int> GetOnes(List<string> input)
+        public static (List<int>, List<int>) GetZeroOneCount(List<string> input)
         {
             var ones = new List<int>(new int[input[0].Length]);
+            var zeros = new List<int>(new int[input[0].Length]);
             foreach (var row in input)
             {
                 var i = 0;
                 foreach (var pos_val in row)
                 {
-                    var value =int.Parse(pos_val.ToString());
-                    if (value == 1){
-                        ones[i] ++;
+                    var value = int.Parse(pos_val.ToString());
+                    if (value == 1)
+                    {
+                        ones[i]++;
 
-                    } 
+                    }
+                    else
+                    {
+                        zeros[i]++;
+                    }
                     i++;
 
                 }
             }
-            return ones;
+            return (zeros, ones);
         }
         public static List<int> GetMostCommonForEach(List<string> input)
         {
-            var ones = GetOnes(input);
+            var (zeros, ones) = GetZeroOneCount(input);
 
             var zero_or_one = new List<int>();
             foreach (var x in ones)
             {
-                if (x >= input.Count / 2)
+                if (2 * x >= input.Count)
                 {
                     zero_or_one.Add(1);
 
@@ -57,34 +63,43 @@ namespace Aoc
             return zero_or_one;
         }
 
-        public static List<int> GetLeastCommonForEach(List<string> input)
+        public static int GetMostCommon(List<string> input, int i)
         {
-            var ones = GetOnes(input);
+            var (zeros, ones) = GetZeroOneCount(input);
 
-            var zero_or_one = new List<int>();
-            foreach (var x in ones)
+            var x = ones[i];
+            if (2 * x >= input.Count)
             {
-                if (2*x < input.Count )
-                {
-                    zero_or_one.Add(0);
+                return 1;
 
-                }
-                else
-                {
-                    zero_or_one.Add(1);
-                }
+            }
+            else
+            {
+                return 0;
+            }
+        }
+
+
+        public static int GetLeastCommon(List<string> input, int i)
+        {
+            var (zeros, ones) = GetZeroOneCount(input);
+
+            if (2 * ones[i] < input.Count)
+            {
+                return 1;
+
+            }
+            else
+            {
+                return 0;
             }
 
-            return zero_or_one;
         }
         public static long part1(List<string> input)
         {
-
             var gamma = GetMostCommonForEach(input);
 
-
             var epsilon = gamma.Select(x => 1 - x);
-
 
             var a = Convert.ToInt64(string.Join("", gamma), 2);
             var b = Convert.ToInt64(string.Join("", epsilon), 2);
@@ -93,34 +108,66 @@ namespace Aoc
         }
 
 
-        public static string GetLast(List<string> input, List<int> common){
-            
-            string last_number="";
+        public static string GetLastMost(List<string> input)
+        {
+
+            string last_number = "";
             var input_tmp = input.ToList();
-            foreach (var (item, index) in common.Select((item, index) => (item, index)))
+
+            for (int i = 0; i < input[0].Count(); i++)
             {
-                foreach (var number in input_tmp.ToList())  //copies the list every iteration.. 
+                var keeper = GetMostCommon(input_tmp, i);
+                last_number += keeper.ToString(); //Hva skjer?!
+
+                foreach (var number in input_tmp.ToList())  //copy the list every iteration to allow "remove" in foreach 
                 {
-                    if (number[index].ToString() != item.ToString())
+                    if (input_tmp.Count() == 1)
+                    {
+                        return number;
+                    }
+                    if (int.Parse(number[i].ToString()) != keeper)
                     {
                         input_tmp.Remove(number);
-                        last_number = number;
                     }
 
                 }
             }
             return last_number;
         }
+
+        public static string GetLastLeast(List<string> input)
+        {
+
+            string last_number = "";
+            var input_tmp = input.ToList();
+
+            for (int i = 0; i < input[0].Count(); i++)
+            {
+                var keeper = GetLeastCommon(input_tmp, i);
+                last_number += keeper.ToString();
+
+                foreach (var number in input_tmp.ToList())  //copy the list every iteration to allow "remove" in foreach 
+                {
+                    if (input_tmp.Count() == 1)
+                    {
+                        return number;
+                    }
+                    if (int.Parse(number[i].ToString()) != keeper)
+                    {
+                        input_tmp.Remove(number);
+
+                    }
+
+                }
+            }
+            return last_number;
+        }
+
         public static long part2(List<string> input)
         {
-           var most_common = GetMostCommonForEach(input);
-           var least_common = GetLeastCommonForEach(input);
-            var least_common2 = most_common.Select(x => 1 - x).ToList();
-            
-
-            var oxy_b = GetLast(input,most_common );
-            var co2_b = GetLast(input, least_common);
-            var oxy = Convert.ToInt64( oxy_b, 2);
+            var oxy_b = GetLastMost(input);
+            var co2_b = GetLastLeast(input);
+            var oxy = Convert.ToInt64(oxy_b, 2);
             var co2 = Convert.ToInt64(co2_b, 2);
 
             return oxy * co2;
@@ -128,18 +175,16 @@ namespace Aoc
         static void Main(string[] args)
         {
 
-            // Debug.Assert(part1(ReadFileToStr("test")) == 198);
-            // Debug.Assert(part1(ReadFileToStr("input")) == 3895776);
+            Debug.Assert(part1(ReadFileToStr("test")) == 198);
+            Debug.Assert(part1(ReadFileToStr("input")) == 3895776);
 
             Debug.Assert(part2(ReadFileToStr("test")) == 230);
 
             var part2_result = part2(ReadFileToStr("input"));
             Debug.Assert(part2_result == 7928162);
 
-            // var part2_result = part2(ReadFileToStr("input"));
-            Console.WriteLine(part2_result); 
+            Console.WriteLine(part2_result);
 
-            // Debug.Assert(part2(ReadFileToStr("input")) == 1633);
 
 
         }
