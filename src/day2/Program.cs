@@ -5,7 +5,7 @@ namespace Aoc
     class Day2
     {
 
-        public static List<(string cmd, int step)> ReadFileToCmds(string name)
+        public static List<(string Cmd, int Step)> ReadFileToCmds(string name)
         {
             return File.ReadAllLines($"input/{name}.txt")
             .Select(x =>
@@ -45,10 +45,39 @@ namespace Aoc
             return  (Up: up, Forward: forward);
         }
 
-        public static int part2(List<int> input)
+
+        public static (int Depth ,int Forward) part2(string input_name)
         {
-            return input.Where((x, i) => i > 1 && i < input.Count() - 1 && input.Skip(i - 2).Take(3).Sum() < input.Skip(i - 1).Take(3).Sum()).ToList().Count();
+            var cmds = ReadFileToCmds(input_name);
+
+            var depth = 0;
+            var aim = 0;
+            var forward = 0;
+            foreach (var cmd in cmds)
+            {
+                switch (cmd.Item1)
+                {
+                    case "forward":
+                        forward += cmd.Step;
+                        depth += aim* cmd.Step;
+                        break;
+                    case "down":
+                        aim += cmd.Step;
+                        break;
+                    case "up":
+                        aim -= cmd.Step;
+                        break;
+
+                    default:
+                        break;
+
+                }
+
+            }
+            return  (Depth: depth, Forward: forward);
         }
+
+
         static void Main(string[] args)
         {
             var p1_test = part1("test");
@@ -59,16 +88,13 @@ namespace Aoc
             Debug.Assert(p1.Up*p1.Forward == 1693300);
 
 
-            // var part1_result = part1(ReadFileToCmds("input"));
-            // Console.WriteLine(part1_result); // 1602
+            var p2_test = part2("test");
+            Debug.Assert(p2_test.Depth*p2_test.Forward == 900);
 
-            // Debug.Assert(part2(ReadFileToCmds("test")) == 5);
 
-            // var part2_result = part2(ReadFileToCmds("input"));
-            // Console.WriteLine(part2_result); // 1633
 
-            // Debug.Assert(part2(ReadFileToCmds("input")) == 1633);
-
+            var p2 = part2("input");
+            Debug.Assert(p2.Depth*p2.Forward == 1857958050);
 
         }
 
