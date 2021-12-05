@@ -56,12 +56,6 @@ namespace Aoc
         {
             var raw_input = File.ReadAllLines($"input/{name}.txt");
 
-            // var coords = 
-            //     from row in raw_input
-            //     let xys =row.Split("->")
-            //     from xy in xys               
-            //     let xy1 = xys[0]
-
             var raw_coords = raw_input.Select(row =>
                 row.Split("->").ToList()
                     .Select(xy => xy.Trim().Split(",").ToList()
@@ -90,33 +84,24 @@ namespace Aoc
 
                 var dx = stop_p.x - start_p.x;
                 var dy = stop_p.y - start_p.y;
-
+                var x_step = 0;
+                var y_step = 0;
 
                 if (dx != 0)
                 {
-                    var x_step = Math.Abs(dx) / dx;
-
-                    for (int i = 0; i <= Math.Abs(dx); i++)
-                    {
-                        var coord = new Coord(start_p.x + i * x_step, start_p.y);
-                        if (!grid.TryAdd(coord, 1))
-                        {
-                            grid[coord] += 1;
-
-                        }
-                    }
+                    x_step = Math.Abs(dx) / dx;
                 }
                 if (dy != 0)
                 {
-                    var y_step = Math.Abs(dy) / dy;
-                    for (int i = 0; i <= Math.Abs(dy); i++)
+                    y_step = Math.Abs(dy) / dy;
+                }
+                var max = Math.Max(Math.Abs(dy), Math.Abs(dx));
+                for (int i = 0; i <= Math.Abs(max); i++)
+                {
+                    var coord = new Coord(start_p.x + i * x_step, start_p.y + i * y_step);
+                    if (!grid.TryAdd(coord, 1))
                     {
-                        var coord = new Coord(start_p.x, start_p.y + i * y_step);
-                        if (!grid.TryAdd(coord, 1))
-                        {
-                            grid[coord] += 1;
-
-                        }
+                        grid[coord] += 1;
                     }
                 }
             }
@@ -125,18 +110,13 @@ namespace Aoc
 
         }
 
-        public static int part2(List<int> input)
-        {
-            return input.Where((x, i) => i > 1 && i < input.Count() - 1 && input.Skip(i - 2).Take(3).Sum() < input.Skip(i - 1).Take(3).Sum()).ToList().Count();
-        }
         static void Main(string[] args)
         {
-            var coords = ReadFileToCoords("test");
             Debug.Assert(part(ReadFileToCoords("test"), false) == 5);
             Debug.Assert(part(ReadFileToCoords("input"), false) == 6267);
 
             Debug.Assert(part(ReadFileToCoords("test"), true) == 12);
-            Debug.Assert(part(ReadFileToCoords("input"), true) == 5);
+            Debug.Assert(part(ReadFileToCoords("input"), true) == 20196);
 
 
 
