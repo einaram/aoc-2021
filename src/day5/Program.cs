@@ -57,8 +57,8 @@ namespace Aoc
             var raw_input = File.ReadAllLines($"input/{name}.txt");
 
             var raw_coords = raw_input.Select(row =>
-                row.Split("->").ToList()
-                    .Select(xy => xy.Trim().Split(",").ToList()
+                row.Split("->")
+                    .Select(xy => xy.Trim().Split(",")
                         .Select(part => int.Parse(part)).ToList()
 
                     ).ToList()
@@ -67,38 +67,38 @@ namespace Aoc
 
             return raw_coords;
         }
-
+        public static int get_step(int delta)
+        {
+            var step = 0;
+            if (delta != 0)
+            {
+                step = Math.Abs(delta) / delta;
+            }
+            return step;
+        }
 
         public static int part(List<List<List<int>>> line_coords, bool diagonal)
         {
             var grid = new Dictionary<Coord, int>();
             foreach (var coords in line_coords)
             {
-                var start_p = new Coord(coords[0]);
-                var stop_p = new Coord(coords[1]);
+                var start = new Coord(coords[0]);
+                var stop = new Coord(coords[1]);
 
-                if (start_p.x != stop_p.x && start_p.y != stop_p.y && !diagonal)
+                if (start.x != stop.x && start.y != stop.y && !diagonal)
                 {
                     continue;
                 }
 
-                var dx = stop_p.x - start_p.x;
-                var dy = stop_p.y - start_p.y;
-                var x_step = 0;
-                var y_step = 0;
+                var dx = stop.x - start.x;
+                var dy = stop.y - start.y;
+                var x_step = get_step(dx);
+                var y_step = get_step(dy);
 
-                if (dx != 0)
-                {
-                    x_step = Math.Abs(dx) / dx;
-                }
-                if (dy != 0)
-                {
-                    y_step = Math.Abs(dy) / dy;
-                }
                 var max = Math.Max(Math.Abs(dy), Math.Abs(dx));
-                for (int i = 0; i <= Math.Abs(max); i++)
+                for (int i = 0; i <= max; i++)
                 {
-                    var coord = new Coord(start_p.x + i * x_step, start_p.y + i * y_step);
+                    var coord = new Coord(start.x + i * x_step, start.y + i * y_step);
                     if (!grid.TryAdd(coord, 1))
                     {
                         grid[coord] += 1;
