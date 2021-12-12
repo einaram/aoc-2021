@@ -5,17 +5,15 @@ namespace Aoc
 {
     class Day10
     {
-        // public List<string> corrupt =new List<string>();
-
         private static readonly Dictionary<string, string> StartStop
-            = new Dictionary<string, string>
-        {
+           = new Dictionary<string, string>
+       {
            {"(", ")"},
            {"[", "]"},
            {"{", "}"},
            {"<", ">"}
 
-        };
+       };
 
         private static readonly Dictionary<string, int> Points
             = new Dictionary<string, int>
@@ -27,96 +25,115 @@ namespace Aoc
 
         };
 
-        public static string CheckChunk(List<string> open, List<string> row)
+        private static readonly Dictionary<string, int> Points2
+            = new Dictionary<string, int>
         {
-            if (row.Count() <= 1){
-                return "End"+ String.Join(";",row);
+           {")", 1},
+           {"]", 2},
+           {"}", 3},
+           {">", 4}
+
+        };
+
+            static bool ValidChunkClosed(List<string> open, string chr)
+            {
+                return chr == StartStop.GetValueOrDefault(open.LastOrDefault(""), "");
             }
-            var start = row[0];
+
+            static bool ValidChunkBegins(string chr)
+            {
+                return StartStop.Keys.Contains(chr);
+            }
+
+        public static string CheckChunks(List<string> open, List<string> row)
+        {
             var next = 0;
+            var i = 0;
+            var chr = row[i];
 
-            var i = 1;
-            Console.Write(start);
-            Debug.Write(start);
-
-            if (row[i] == StartStop.GetValueOrDefault(start, ""))
+            if (ValidChunkClosed(open, chr))
             {
-                // Valid chunk closed, go to next
-                next = i+1;
+                next = i + 1;
+                open.RemoveAt(open.Count() - 1);
             }
-            else if (StartStop.Values.Contains(row[i]))
+            else if (ValidChunkBegins(chr))
             {
-                // Corrupt chunk - Contatins stop char for another start
-                return $"c: {row[i]}";
-
+                next = i + 1;
+                open.Add(row[i]);
             }
-            else if (StartStop.Keys.Contains(row[i]))
-            //Another chunk begins
+            else
             {
-                // return CheckChunk(results, row.Skip(i).ToList());
-                next =i;
-
+                // Corrupt chunk - Contains stop char for another start
+                return chr;
             }
-            return CheckChunk(open, row.Skip(next).ToList());
-
-            // var corrupt = results.Where(x => x != "").ToList();
-            // if (corrupt.Count() > 0)
-            // {
-            //     return corrupt[0];
-            // }
-            return "";
-        }
-    public static int Part1(string name)
-    {
-        // var path = $"C:/Users/einar/source/repos/aoc-2021/src/day10/input/{name}.txt";
-        var res = File.ReadAllLines($"C:/Users/einar/source/repos/aoc-2021/src/day10/input/{name}.txt").Select(x => x.ToList().Select(chr => chr.ToString()).ToList()).ToList();
+            if (row.Count() <= 1)
+            {
+                return "";
+            }
+            return CheckChunks(open, row.Skip(next).ToList());
 
 
-        //res.Where(row=>ValidRow(row));
-
-        //ValidChunk()
-        var results = new List<string>();
-        var open = new List<string>();
-        foreach (var row in res)
-        {   
-            var rowstr = String.Join("",row);
-            results.Add($"{CheckChunk(results, row)} {rowstr} ");
 
         }
-        // var row = "{([(<{}[<>[]}>{[]{[(<()>";
-        // for (int i = 0; i < row.Length; i++)
-        // {
-        // }
+        public static int Part1(List<List<string>> input)
+        {
+            var results = new List<string>();
+            foreach (var row in input)
+            {
+                var open = new List<string>();
+                results.Add($"{CheckChunks(open, row)}");
+            }
+            var score = results.Where(x => x != "").Select(x => Points[x]).Sum();
+            return score;
+        }
+
+
+        public static long GetScore2(List<string> open)
+        {
+
+            var closing = open.Select(chr => StartStop[chr]).Reverse();
+            var score = 0L;
+            foreach (string close in closing)
+            {
+                score = 5 * score + Points2[close];
+            }
+            return score;
+        }
+
+        public static List<List<string>> GetParsedInput(string name)
+        {
+            return File.ReadAllLines($"input/{name}.txt").Select(x => x.ToList().Select(chr => chr.ToString()).ToList()).ToList();
+        }
+
+        public static long Part2(List<List<string>> input)
+        {
+            var scores = new List<long>();
+            foreach (var row in input)
+            {
+                var open = new List<string>();
+                if (CheckChunks(open, row) == "")
+                {
+                    scores.Add(GetScore2(open));
+                }
+            }
+            scores.Sort();
+            var score = scores[scores.Count() / 2];
+
+
+            return score;
+        }
 
 
 
-        return 1;
+
+        static void Main(string[] args)
+        {
+
+            Debug.Assert(Part1(GetParsedInput("test")) == 26397);
+            Debug.Assert(Part1(GetParsedInput("input")) == 294195);
+
+            Debug.Assert(Part2(GetParsedInput("test")) == 288957);
+            Debug.Assert(Part2(GetParsedInput("input")) == 3490802734);
+        }
     }
-
-
-
-    // public static long Part1(List<int> input, int days)
-    // {
-    //     Dictionary<int, long> groups = input.GroupBy(i => i).ToDictionary(g => g.Key, g => Convert.ToInt64(g.Count()));
-
-
-
-    //     return groups.Values.Sum();
-    // }
-
-    static void Main(string[] args)
-    {
-        Console.WriteLine(Environment.CurrentDirectory);
-        var map_test = Part1("test");
-        var map1 = Part1("input");
-        // 1:
-        //     Debug.Assert(part(ReadFileToInt("test"), 18) == 26);
-        //     Debug.Assert(part(ReadFileToInt("test"), 80) == 5934);
-        //     Debug.Assert(part(ReadFileToInt("input"), 80) == 372984);
-
-        //     // 2:
-        //     Debug.Assert(part(ReadFileToInt("test"), 256) == 26984457539);
-        //     Debug.Assert(part(ReadFileToInt("input"), 256) == 1681503251694);
-    }
-}
 }
